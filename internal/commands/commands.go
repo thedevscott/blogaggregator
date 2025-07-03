@@ -107,6 +107,22 @@ func HandlerResetUsers(s *State, cmd Command) error {
 	return nil
 }
 
+func HandlerGetUsers(s *State, cmd Command) error {
+	users, err := s.Db.GetUsers(context.Background())
+	if err != nil {
+		return fmt.Errorf("failed to get users: %w", err)
+	}
+	fmt.Println("Users table reset successful!")
+	for _, user := range users {
+		if strings.ToLower(user.Name) != strings.ToLower(s.Cfg.CurrentUserName) {
+			fmt.Printf("* %s\n", user.Name)
+		} else {
+			fmt.Printf("* %s (current)\n", user.Name)
+		}
+	}
+	return nil
+}
+
 func printUser(usr database.User) {
 	fmt.Printf("\t-ID:\t%v\n", usr.ID)
 	fmt.Printf("\t-Name:\t%v\n", usr.Name)

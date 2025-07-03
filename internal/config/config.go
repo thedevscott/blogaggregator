@@ -40,7 +40,6 @@ func Read() (Config, error) {
 func (cfg *Config) SetUser(userName string) error {
 	cfg.CurrentUserName = userName
 
-	// fullPath := "~/" + configFilename
 	fullPath, err := getConfigFilePath()
 	if err != nil {
 		return err
