@@ -37,3 +37,6 @@ CREATE DATABASE <name>;
 # set user password Linux
 ALTER USER postgres PASSWORD 'postgres';
 ```
+
+# Reminder before DB tests
+Run goose up/down commands from inside the sql/schema directory

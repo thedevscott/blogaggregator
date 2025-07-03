@@ -1,11 +1,14 @@
 package main
 
 import (
+	"database/sql"
 	"log"
 	"os"
 
+	_ "github.com/lib/pq"
 	"github.com/thedevscott/blogaggregator/internal/commands"
 	"github.com/thedevscott/blogaggregator/internal/config"
+	"github.com/thedevscott/blogaggregator/internal/database"
 )
 
 func main() {
@@ -14,7 +17,15 @@ func main() {
 		log.Fatalf("error reading config: %v", err)
 	}
 
+	db, err := sql.Open("postgres", cfg.DBURL)
+	if err != nil {
+		log.Fatalf("error connecting to database: %v", err)
+	}
+	defer db.Close()
+	dbQueries := database.New(db)
+
 	programState := &commands.State{
+		Db:  dbQueries,
 		Cfg: &cfg,
 	}
 
@@ -23,6 +34,7 @@ func main() {
 	}
 
 	cmds.Register("login", commands.HandlerLogin)
+	cmds.Register("register", commands.HandlerRegister)
 
 	if len(os.Args) < 2 {
 		log.Fatal("Usage: cli <command> [args...]")

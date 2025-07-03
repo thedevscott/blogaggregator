@@ -1,11 +1,15 @@
 package commands
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"strings"
+	"time"
 
+	"github.com/google/uuid"
 	"github.com/thedevscott/blogaggregator/internal/config"
+	"github.com/thedevscott/blogaggregator/internal/database"
 )
 
 func cleanInput(text string) []string {
@@ -26,6 +30,7 @@ type Commands struct {
 }
 
 type State struct {
+	Db  *database.Queries
 	Cfg *config.Config
 }
 
@@ -50,11 +55,50 @@ func HandlerLogin(s *State, cmd Command) error {
 
 	name := cmd.Args[0]
 
-	err := s.Cfg.SetUser(name)
+	// Make sure the user is in the DB before setting in config json file
+	_, err := s.Db.GetUser(context.Background(), name)
+	if err != nil {
+		return fmt.Errorf("user not found: %w", err)
+	}
+
+	err = s.Cfg.SetUser(name)
 	if err != nil {
 		return fmt.Errorf("faild to set current user: %w", err)
 	}
 
 	fmt.Println("User login successful!")
 	return nil
+}
+
+func HandlerRegister(s *State, cmd Command) error {
+	if len(cmd.Args) != 1 {
+		return fmt.Errorf("usage: %s <name>", cmd.Name)
+	}
+
+	name := cmd.Args[0]
+
+	usr, err := s.Db.CreateUser(context.Background(), database.CreateUserParams{
+		ID:        uuid.New(),
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+		Name:      name,
+	})
+
+	if err != nil {
+		return fmt.Errorf("error creating user: %w", err)
+	}
+
+	err = s.Cfg.SetUser(usr.Name)
+	if err != nil {
+		return fmt.Errorf("faild to set current user: %w", err)
+	}
+
+	fmt.Printf("Crated user: %s\n", usr.Name)
+	printUser(usr)
+	return nil
+}
+
+func printUser(usr database.User) {
+	fmt.Printf("\t-ID:\t%v\n", usr.ID)
+	fmt.Printf("\t-Name:\t%v\n", usr.Name)
 }
