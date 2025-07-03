@@ -164,10 +164,16 @@ func HandlerGetFeed(s *State, cmd Command) error {
 		return fmt.Errorf("failed to get feeds: %w", err)
 	}
 
+	if len(feeds) == 0 {
+		fmt.Println("No feed found.")
+		return nil
+	}
+
+	fmt.Printf("Feeds found: %d\n", len(feeds))
+
 	for _, feed := range feeds {
-		// printFeed(feed)
 		user, err := s.Db.GetUserById(context.Background(), feed.UserID)
-		// printUser(user)
+
 		if err != nil {
 			return fmt.Errorf("failed to get user name from DB: %w", err)
 		}
