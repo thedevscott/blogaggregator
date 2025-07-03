@@ -10,19 +10,12 @@ import (
 	"github.com/google/uuid"
 	"github.com/thedevscott/blogaggregator/internal/config"
 	"github.com/thedevscott/blogaggregator/internal/database"
+	"github.com/thedevscott/blogaggregator/internal/feed"
 )
 
-func cleanInput(text string) []string {
-	ltext := strings.TrimSpace(strings.ToLower(text))
-	splitText := strings.Fields(ltext)
-
-	return splitText
-}
-
 type Command struct {
-	Name        string
-	description string
-	Args        []string
+	Name string
+	Args []string
 }
 
 type Commands struct {
@@ -121,6 +114,78 @@ func HandlerGetUsers(s *State, cmd Command) error {
 		}
 	}
 	return nil
+}
+
+func HandlerAggregate(s *State, cmd Command) error {
+	feed, err := feed.FetchFeed(context.Background(), "https://www.wagslane.dev/index.xml")
+	if err != nil {
+		return fmt.Errorf("failed to fetch feed: %w", err)
+	}
+	fmt.Printf("Feed: %+v\n", feed)
+	return nil
+}
+
+func HandlerAddFeed(s *State, cmd Command) error {
+	user, err := s.Db.GetUser(context.Background(), s.Cfg.CurrentUserName)
+	if err != nil {
+		return err
+	}
+
+	if len(cmd.Args) != 2 {
+		return fmt.Errorf("usage: %s <name> <url>", cmd.Name)
+	}
+
+	name := cmd.Args[0]
+	url := cmd.Args[1]
+
+	feed, err := s.Db.CreateFeed(context.Background(), database.CreateFeedParams{
+		ID:        uuid.New(),
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+		UserID:    user.ID,
+		Name:      name,
+		Url:       url,
+	})
+
+	if err != nil {
+		return fmt.Errorf("Failed to create feed: %w", err)
+	}
+
+	fmt.Println("Feed created successfully:")
+	printFeed(feed)
+	fmt.Println("\n=================================")
+	return nil
+
+}
+
+func HandlerGetFeed(s *State, cmd Command) error {
+	feeds, err := s.Db.GetFeeds(context.Background())
+	if err != nil {
+		return fmt.Errorf("failed to get feeds: %w", err)
+	}
+
+	for _, feed := range feeds {
+		// printFeed(feed)
+		user, err := s.Db.GetUserById(context.Background(), feed.UserID)
+		// printUser(user)
+		if err != nil {
+			return fmt.Errorf("failed to get user name from DB: %w", err)
+		}
+
+		fmt.Printf("Feed Name: %s\n", feed.Name)
+		fmt.Printf("Feed URL: %s\n", feed.Url)
+		fmt.Printf("Feed User: %s\n", user.Name)
+	}
+
+	return nil
+}
+func printFeed(feed database.Feed) {
+	fmt.Printf("* ID:            %s\n", feed.ID)
+	fmt.Printf("* Created:       %v\n", feed.CreatedAt)
+	fmt.Printf("* Updated:       %v\n", feed.UpdatedAt)
+	fmt.Printf("* Name:          %s\n", feed.Name)
+	fmt.Printf("* URL:           %s\n", feed.Url)
+	fmt.Printf("* UserID:        %s\n", feed.UserID)
 }
 
 func printUser(usr database.User) {
