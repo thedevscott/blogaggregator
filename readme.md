@@ -40,3 +40,6 @@ ALTER USER postgres PASSWORD 'postgres';
 
 # Reminder before DB tests
 Run goose up/down commands from inside the sql/schema directory
+```bash
+goose postgres <connection_string> up/down
+```
