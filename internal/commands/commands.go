@@ -98,6 +98,15 @@ func HandlerRegister(s *State, cmd Command) error {
 	return nil
 }
 
+func HandlerResetUsers(s *State, cmd Command) error {
+	err := s.Db.ResetUsers(context.Background())
+	if err != nil {
+		return fmt.Errorf("failed to reset users table: %w", err)
+	}
+	fmt.Println("Users table reset successful!")
+	return nil
+}
+
 func printUser(usr database.User) {
 	fmt.Printf("\t-ID:\t%v\n", usr.ID)
 	fmt.Printf("\t-Name:\t%v\n", usr.Name)
