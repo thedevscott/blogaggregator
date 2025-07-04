@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log"
 	"strings"
 	"time"
 
@@ -127,12 +128,49 @@ func HandlerGetUsers(s *State, cmd Command) error {
 }
 
 func HandlerAggregate(s *State, cmd Command) error {
-	feed, err := feed.FetchFeed(context.Background(), "https://www.wagslane.dev/index.xml")
-	if err != nil {
-		return fmt.Errorf("failed to fetch feed: %w", err)
+	if len(cmd.Args) < 1 || len(cmd.Args) > 2 {
+		return fmt.Errorf("usage: %v <delay_between_requests>", cmd.Name)
 	}
-	fmt.Printf("Feed: %+v\n", feed)
-	return nil
+
+	timeBetweenRequests, err := time.ParseDuration(cmd.Args[0])
+	if err != nil {
+		return fmt.Errorf("invalid delay duration: %w", err)
+	}
+
+	log.Printf("Collecting feeds ever %s...", timeBetweenRequests)
+
+	ticker := time.NewTicker(timeBetweenRequests)
+
+	for ; ; <-ticker.C {
+		scrapeFeeds(s)
+	}
+}
+
+func scrapeFeeds(s *State) {
+	feed, err := s.Db.GetNextFeedToFetch(context.Background())
+	if err != nil {
+		log.Println("failed to get next feeds to fetch", err)
+	}
+	log.Println("Found a feed to fetch.")
+	scrapeFeed(s.Db, feed)
+}
+
+func scrapeFeed(db *database.Queries, db_feed database.Feed) {
+	_, err := db.MarkFeedFetched(context.Background(), db_feed.ID)
+	if err != nil {
+		log.Printf("Failed to mark feed %s fetched: %v", db_feed.Name, err)
+		return
+	}
+
+	feedData, err := feed.FetchFeed(context.Background(), db_feed.Url)
+	if err != nil {
+		log.Printf("Failed to collect feed %s: %v", db_feed.Name, err)
+		return
+	}
+	for _, item := range feedData.Channel.Item {
+		fmt.Printf("Found post: %s\n", item.Title)
+	}
+	log.Printf("Feed %s collected, %v posts found", db_feed.Name, len(feedData.Channel.Item))
 }
 
 func HandlerAddFeed(s *State, cmd Command, user database.User) error {
