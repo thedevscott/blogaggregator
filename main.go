@@ -41,6 +41,7 @@ func main() {
 	cmds.Register("addfeed", commands.MiddlewareLoggedIn(commands.HandlerAddFeed))
 	cmds.Register("feeds", commands.HandlerGetFeed)
 	cmds.Register("follow", commands.MiddlewareLoggedIn(commands.HandlerFollow))
+	cmds.Register("browse", commands.MiddlewareLoggedIn(commands.HandlerBrowse))
 	cmds.Register("unfollow", commands.MiddlewareLoggedIn(commands.HandlerUnfollow))
 	cmds.Register("following", commands.MiddlewareLoggedIn(commands.HandlerFollowing))
 
