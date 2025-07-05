@@ -42,20 +42,20 @@ Before running any commands, ensure the config file is setup.
 
 usage: blogaggregator <command> ...
 
-"register"  - Adds a new user to the database ie: blogaggregator register <name>
-"login"     - Sets the current user in the config ie: blogaggregator login <name>
-"reset"     - Deletes all users in the database ie: blogaggregator reset
-"users"     - Lists all the usres in the database ie: blogaggregator users
-"addfeed"   - Adds a feed to tract ie: blogaggregator addfeed "Hacker News RSS" "https://hnrss.org/newest"
-"agg"       - Runs the app indefinitely & collects feeds at set interval ie:
++ "register"  - Adds a new user to the database ie: blogaggregator register <name>
++ "login"     - Sets the current user in the config ie: blogaggregator login <name>
++ "reset"     - Deletes all users in the database ie: blogaggregator reset
++ "users"     - Lists all the usres in the database ie: blogaggregator users
++ "addfeed"   - Adds a feed to tract ie: blogaggregator addfeed "Hacker News RSS" "https://hnrss.org/newest"
++ "agg"       - Runs the app indefinitely & collects feeds at set interval ie:
 blogaggregator agg 60s
-"feeds"     - List the feeds currently being tracked ie: blogaggregator feeds
-"follow"    - Have the current user follow a registered feed ie: blogaggregator
++ "feeds"     - List the feeds currently being tracked ie: blogaggregator feeds
++ "follow"    - Have the current user follow a registered feed ie: blogaggregator
 follow "https://hnrss.org/newest"
-"unfollow"  - Stop following a feed ie: blogaggregator unfollow "https://hnrss.org/newest"
-"following" - List the feeds being followed by the current user ie:
++ "unfollow"  - Stop following a feed ie: blogaggregator unfollow "https://hnrss.org/newest"
++ "following" - List the feeds being followed by the current user ie:
 blogaggregator following
-"browse"    - Browse the posts. A feed must be followed in order to browse it. Takes an optional limit parameter ie:
++ "browse"    - Browse the posts. A feed must be followed in order to browse it. Takes an optional limit parameter ie:
 blogaggregator browse <2>
 
 # Postgres Database
