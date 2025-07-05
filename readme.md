@@ -6,6 +6,7 @@ This app can be used as a long running service to continuously fetch posts from
 RSS feeds and store them in the database.
 
 ## Features
+gator allows:
   + Add RSS feeds from across the internet to be collected
   + Store the collected posts in a PostgreSQL database
   + Follow and unfollow RSS feeds that other users have added
