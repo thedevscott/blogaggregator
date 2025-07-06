@@ -22,7 +22,7 @@ Postgres 15+
 # Install
 This app can be installed by running:
 ```bash
-go install https://github.com/thedevscott/blogaggregator
+go install github.com/thedevscott/blogaggregator@latest
 ```
 
 # Config File
